@@ -3,53 +3,52 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import {
-  GanttChartSquare,
-  User,
+  Heart,
   LogOut,
   Activity,
-  Target,
-  BarChart3,
-  BookOpen,
+  Sparkles,
+  Utensils,
+  BookHeart,
   Scale,
-  Users,
   Settings,
+  Droplets,
+  Flower2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { StreakCounter } from "@/components/streak-counter"
-import { DailyTasks } from "@/components/daily-tasks" // Import DailyTasks
+import { DailyTasks } from "@/components/daily-tasks"
 import type { HealthLog, Task, Project } from "@/types"
 import { addDays } from "date-fns"
 
 export default function DashboardPage() {
-  // Generate 30 days of health logs and tasks for a long streak simulation
   const generateLongStreakData = () => {
     const today = new Date()
     const simulatedHealthLogs: HealthLog[] = []
     const simulatedTasks: Task[] = []
 
     for (let i = 0; i < 30; i++) {
-      const date = addDays(today, -i) // Go back in time for each day
+      const date = addDays(today, -i)
       simulatedHealthLogs.push({
         id: `log-${i}`,
-        date: date,
+        date,
         uid: "user1",
-        weight: 70 - i * 0.1, // Dummy data
-        sleep: 7.5 + i * 0.05, // Dummy data
+        weight: 65 - i * 0.05,
+        sleep: 7.5 + (Math.random() * 1 - 0.5),
         exercises: [],
-        meals: `Refeições do dia ${i + 1}`,
+        meals: `Alimentação saudável dia ${i + 1}`,
       })
       simulatedTasks.push({
         id: `task-${i}`,
-        date: date,
+        date,
         completed: true,
-        description: `Tarefa do dia ${i + 1}`,
-        text: `Tarefa do dia ${i + 1}`, // Added text for consistency
-        category: "Pessoal",
+        description: i % 2 === 0 ? "Beber 2L de água" : "30 min de caminhada",
+        text: i % 2 === 0 ? "Beber 2L de água" : "30 min de caminhada",
+        category: "Autocuidado",
         importance: 5,
         urgency: 5,
-        type: "Execução",
+        type: "Saúde",
         order: i,
       })
     }
@@ -57,25 +56,16 @@ export default function DashboardPage() {
   }
 
   const { simulatedHealthLogs, simulatedTasks } = generateLongStreakData()
-
-  const [healthLogs, setHealthLogs] = useState<HealthLog[]>(simulatedHealthLogs)
+  const [healthLogs] = useState<HealthLog[]>(simulatedHealthLogs)
   const [tasks, setTasks] = useState<Task[]>(simulatedTasks)
-  const [projects, setProjects] = useState<Project[]>([
-    { id: "proj1", name: "Projeto Alpha" },
-    { id: "proj2", name: "Projeto Beta" },
+  const [projects] = useState<Project[]>([
+    { id: "proj1", name: "Projeto Verão" },
+    { id: "proj2", name: "Reeducação Alimentar" },
   ])
 
   const handleAddTask = (newTask: Omit<Task, "id" | "uid" | "date">) => {
     const newId = (tasks.length > 0 ? Math.max(...tasks.map((t) => Number.parseInt(t.id.replace("task-", "")))) : 0) + 1
-    setTasks((prevTasks) => [
-      ...prevTasks,
-      {
-        ...newTask,
-        id: `task-${newId}`,
-        uid: "user1",
-        date: new Date(),
-      },
-    ])
+    setTasks((prevTasks) => [...prevTasks, { ...newTask, id: `task-${newId}`, uid: "user1", date: new Date() }])
   }
 
   const handleToggleTask = (id: string) => {
@@ -86,134 +76,42 @@ export default function DashboardPage() {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
   }
 
-  const handleUpdateTaskOrder = (newOrderedTasks: Task[]) => {
-    setTasks(newOrderedTasks)
-  }
-
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="container mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8 flex items-center justify-between"
-        >
+    <div className="min-h-screen bg-rose-50/50 p-4 font-sans text-slate-800 pb-20">
+      <div className="container mx-auto max-w-5xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <GanttChartSquare className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <div className="bg-rose-100 p-2 rounded-full text-rose-500"><Flower2 className="h-8 w-8" /></div>
+            <h1 className="text-3xl font-bold text-slate-700">Meu Cantinho</h1>
           </div>
-          <Button variant="outline" size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sair
-          </Button>
+          <Button variant="ghost" size="sm" className="text-rose-400 hover:text-rose-600 hover:bg-rose-100/50"><LogOut className="mr-2 h-4 w-4" />Sair</Button>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Bem-vindo à Plataforma JP!
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Parabéns! Conseguiu aceder com sucesso à plataforma. Esta é uma página de demonstração do dashboard.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Button asChild className="w-full">
-                    <Link href="/dashboard/fitness">
-                      <Activity className="mr-2 h-4 w-4" />
-                      Fitness Tracker
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href="/dashboard/habits">
-                      <Target className="mr-2 h-4 w-4" />
-                      Hábitos Diários
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href="/dashboard/reports">
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Relatórios
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0"
-                  >
-                    <Link href="/dashboard/studies">
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Estudos
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0"
-                  >
-                    <Link href="/dashboard/social">
-                      <Users className="mr-2 h-4 w-4" />
-                      Social Hub
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white border-0"
-                  >
-                    <Link href="/dashboard/fitness/weight-loss">
-                      <Scale className="mr-2 h-4 w-4" />
-                      Sistema de Emagrecimento
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0"
-                  >
-                    <Link href="/dashboard/profile">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Meu Perfil
-                    </Link>
-                  </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+            <Card className="border-none shadow-md bg-gradient-to-br from-rose-400 to-pink-500 text-white overflow-hidden relative">
+              <Sparkles className="absolute top-4 right-4 opacity-20 h-16 w-16" />
+              <CardHeader><CardTitle className="flex items-center gap-2 text-2xl"><Heart className="h-6 w-6 fill-white" />Bom dia, Linda! ✨</CardTitle></CardHeader>
+              <CardContent className="space-y-6 relative z-10">
+                <p className="text-rose-50 text-lg font-medium">&quot;Cada escolha saudável que fazes hoje é um abraço no teu eu de amanhã. Tu consegues!&quot;</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/fitness/weight-loss"><Scale className="mr-3 h-5 w-5" />O meu Peso</Link></Button>
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/habits"><Droplets className="mr-3 h-5 w-5" />Rotina &amp; Água</Link></Button>
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/fitness"><Activity className="mr-3 h-5 w-5" />Meus Treinos</Link></Button>
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/studies"><Utensils className="mr-3 h-5 w-5" />Receitas Leves</Link></Button>
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/social"><BookHeart className="mr-3 h-5 w-5" />Meu Diário</Link></Button>
+                  <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start"><Link href="/dashboard/profile"><Settings className="mr-3 h-5 w-5" />Configurações</Link></Button>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          {/* Streak Counter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <StreakCounter tasks={tasks} healthLogs={healthLogs} />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="h-full">
+            <div className="bg-white rounded-xl shadow-sm border border-rose-100 p-1 h-full"><StreakCounter tasks={tasks} healthLogs={healthLogs} /></div>
           </motion.div>
 
-          {/* Daily Tasks */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="md:col-span-2" // Make it span full width on medium screens and up
-          >
-            <DailyTasks
-              tasks={tasks}
-              projects={projects}
-              onAddTask={handleAddTask}
-              onToggleTask={handleToggleTask}
-              onDeleteTask={handleDeleteTask}
-              onUpdateTaskOrder={handleUpdateTaskOrder}
-            />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="md:col-span-2 bg-white rounded-xl shadow-sm border border-rose-100 p-1 mt-2">
+            <DailyTasks tasks={tasks} projects={projects} onAddTask={handleAddTask} onToggleTask={handleToggleTask} onDeleteTask={handleDeleteTask} onUpdateTaskOrder={setTasks} />
           </motion.div>
         </div>
       </div>
