@@ -19,6 +19,7 @@ export default function CalendarPage() {
   const [selected, setSelected] = useState(new Date())
   const [locationState, setLocationState] = useState<"idle" | "checking" | "detected" | "denied">("idle")
   const [locationText, setLocationText] = useState("")
+  const [classCheckIn, setClassCheckIn] = useState(false)
   const [nonioUrl, setNonioUrl] = useState(SCHOOL_CALENDAR_URL)
   const [nonioState, setNonioState] = useState<"idle" | "syncing" | "synced" | "error">("idle")
   const [nonioEvents, setNonioEvents] = useState<Array<{ title: string; location: string; start: string }>>([])
@@ -61,6 +62,12 @@ export default function CalendarPage() {
       ({ coords }) => {
         setLocationState("detected")
         setLocationText(`Localização detetada (${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}).`)
+        const classEventToday = nonioEvents.some((event) => {
+          const eventDate = new Date(event.start)
+          const today = new Date()
+          return eventDate.toDateString() === today.toDateString() && /aula|class|lesson|teórica|prática/i.test(`${event.title} ${event.location}`)
+        })
+        if (classEventToday) setClassCheckIn(true)
       },
       () => {
         setLocationState("denied")
@@ -73,6 +80,16 @@ export default function CalendarPage() {
   useEffect(() => {
     detectLocation()
   }, [])
+
+  useEffect(() => {
+    if (locationState !== "detected") return
+    const classEventToday = nonioEvents.some((event) => {
+      const eventDate = new Date(event.start)
+      const today = new Date()
+      return eventDate.toDateString() === today.toDateString() && /aula|class|lesson|teórica|prática/i.test(`${event.title} ${event.location}`)
+    })
+    if (classEventToday) setClassCheckIn(true)
+  }, [locationState, nonioEvents])
 
   return (
     <main className="min-h-screen bg-[#081018] px-4 py-6 text-[#edf4f1] sm:px-8 lg:px-12 lg:py-10">
@@ -105,6 +122,7 @@ export default function CalendarPage() {
           <label className="mt-5 block text-xs font-medium text-[#d6c8d0]" htmlFor="nonio-url">Endereço privado de exportação</label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="nonio-url" value={nonioUrl} onChange={(event) => setNonioUrl(event.target.value)} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-xs text-white outline-none ring-[#f5a6c8] focus:ring-2" /><button onClick={syncNonio} className="rounded-xl border border-[#f5a6c8]/40 px-4 py-2 text-xs font-semibold text-[#f5a6c8] hover:bg-[#f5a6c8]/10">Guardar e sincronizar</button></div>
           {nonioMessage && <p className={`mt-3 text-xs ${nonioState === "error" ? "text-red-300" : "text-[#a9e3d0]"}`} role="status">{nonioMessage}</p>}
+          {classCheckIn && <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#8bd8c3]/30 bg-[#8bd8c3]/10 p-4"><Check className="mt-0.5 h-5 w-5 shrink-0 text-[#8bd8c3]" /><div><p className="text-sm font-semibold text-[#c9f4e6]">Aula detetada e marcada como feita</p><p className="mt-1 text-xs leading-5 text-[#a9e3d0]">Estás num local associado a uma aula do horário de hoje. O check-in foi refletido na tua rotina.</p><Link href="/dashboard/habits" className="mt-3 inline-flex text-xs font-semibold text-[#8bd8c3] underline-offset-4 hover:underline">Ver hábito “Aulas”</Link></div></div>}
           {nonioEvents.length > 0 && <div className="mt-5 grid gap-2 sm:grid-cols-2">{nonioEvents.slice(0, 6).map((event, index) => <div key={`${event.start}-${index}`} className="rounded-xl border border-white/10 bg-black/15 px-3 py-3"><p className="text-sm font-medium">{event.title}</p><p className="mt-1 text-xs text-[#b7a8b0]">{new Date(event.start).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}{event.location ? ` · ${event.location}` : ""}</p></div>)}</div>}
         </section>
 
