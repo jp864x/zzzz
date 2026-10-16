@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { addDays, format, isSameDay, startOfWeek } from "date-fns"
 import { pt } from "date-fns/locale"
@@ -46,6 +46,10 @@ export default function CalendarPage() {
     )
   }
 
+  useEffect(() => {
+    detectLocation()
+  }, [])
+
   return (
     <main className="min-h-screen bg-[#081018] px-4 py-6 text-[#edf4f1] sm:px-8 lg:px-12 lg:py-10">
       <div className="mx-auto max-w-6xl">
@@ -62,7 +66,7 @@ export default function CalendarPage() {
           <a href={SCHOOL_CALENDAR_URL} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-[24px] border border-[#8bd8c3]/25 bg-[#14231f] p-5 transition hover:border-[#8bd8c3]/60">
             <div><p className="text-xs uppercase tracking-[.2em] text-[#9dbab0]">Calendário escolar</p><p className="mt-2 text-sm font-medium">Sincronizar horário do Nónio</p><p className="mt-1 text-xs text-[#9dbab0]">Abre o teu calendário escolar oficial.</p></div><ExternalLink className="h-5 w-5 text-[#8bd8c3]" />
           </a>
-          <div className="rounded-[24px] border border-white/10 bg-[#111b24] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[.2em] text-[#8da4a7]">Check-in por localização</p><p className="mt-2 text-sm font-medium">Estás num local marcado?</p><p className="mt-1 text-xs text-[#8da4a7]">Deteta a tua posição e assinala o momento como feito.</p></div><MapPin className="h-5 w-5 shrink-0 text-[#f5a6c8]" /></div><button onClick={detectLocation} disabled={locationState === "checking"} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8bd8c3] px-3 py-2 text-xs font-semibold text-[#081018] disabled:opacity-60">{locationState === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{locationState === "detected" ? "Local marcado como feito" : "Detetar localização"}</button>{locationText && <p className="mt-3 text-xs text-[#9dbab0]" role="status">{locationText}</p>}</div>
+          <div className="rounded-[24px] border border-white/10 bg-[#111b24] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[.2em] text-[#8da4a7]">Check-in por localização</p><p className="mt-2 text-sm font-medium">Estás num local marcado?</p><p className="mt-1 text-xs text-[#8da4a7]">A plataforma verifica automaticamente a tua localização ao abrir o calendário.</p></div><MapPin className="h-5 w-5 shrink-0 text-[#f5a6c8]" /></div><button onClick={detectLocation} disabled={locationState === "checking"} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8bd8c3] px-3 py-2 text-xs font-semibold text-[#081018] disabled:opacity-60">{locationState === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{locationState === "detected" ? "Local marcado como feito" : "Detetar localização"}</button>{locationText && <p className="mt-3 text-xs text-[#9dbab0]" role="status">{locationText}</p>}</div>
         </section>
 
         <section className="rounded-[28px] border border-white/10 bg-[#111b24] p-5 sm:p-8">
