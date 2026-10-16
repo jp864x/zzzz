@@ -15,7 +15,7 @@ const quickLinks = [
   { label: "Rotina & água", detail: "Mantém o ritmo diário", href: "/dashboard/habits", icon: Droplets, tone: "mint" },
   { label: "Meus treinos", detail: "Move-te ao teu ritmo", href: "/dashboard/fitness", icon: Activity, tone: "violet" },
   { label: "Receitas leves", detail: "Ideias simples e nutritivas", href: "/dashboard/studies", icon: Utensils, tone: "amber" },
-  { label: "Meu diário", detail: "Regista como te sentes", href: "/dashboard/social", icon: BookHeart, tone: "sky" },
+  { label: "Meu diário", detail: "Regista como te sentes", href: "/dashboard/journal", icon: BookHeart, tone: "sky" },
   { label: "Configurações", detail: "Personaliza o teu espaço", href: "/dashboard/profile", icon: Settings, tone: "slate" },
 ]
 
