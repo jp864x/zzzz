@@ -14,6 +14,21 @@ const events = [
 ]
 
 const SCHOOL_CALENDAR_URL = "https://inforestudante.ipc.pt/nonio/util/sincronizaHorarioNonio.do?chave=c56f307b13857690ba5febb6617cd06c&locale=PT"
+const ISEC_LOCATION = { latitude: 40.1927, longitude: -8.4119 }
+const ISEC_RADIUS_METERS = 180
+
+function distanceInMeters(latitude: number, longitude: number) {
+  const earthRadius = 6_371_000
+  const toRadians = (value: number) => (value * Math.PI) / 180
+  const latDelta = toRadians(latitude - ISEC_LOCATION.latitude)
+  const lonDelta = toRadians(longitude - ISEC_LOCATION.longitude)
+  const a = Math.sin(latDelta / 2) ** 2 + Math.cos(toRadians(latitude)) * Math.cos(toRadians(ISEC_LOCATION.latitude)) * Math.sin(lonDelta / 2) ** 2
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function isClassEvent(event: { title: string; location: string }) {
+  return /aula|class|lesson|teórica|prática|laboratório|lab/i.test(`${event.title} ${event.location}`)
+}
 
 export default function CalendarPage() {
   const [selected, setSelected] = useState(new Date())
@@ -29,7 +44,18 @@ export default function CalendarPage() {
   const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(start, index)), [start])
   const todayStart = new Date().setHours(0, 0, 0, 0)
   const dayOffset = (date: Date) => Math.round((date.getTime() - todayStart) / 86400000)
-  const selectedEvents = events.filter((event) => event.offset === dayOffset(selected))
+  const importedCalendarEvents = nonioEvents.map((event) => ({
+    ...event,
+    date: new Date(event.start),
+  }))
+  const selectedEvents = [
+    ...events.filter((event) => event.offset === dayOffset(selected)),
+    ...importedCalendarEvents.filter((event) => isSameDay(event.date, selected)).map((event) => ({
+      title: event.title,
+      type: `Aula${event.location ? ` · ${event.location}` : ""}`,
+      icon: CalendarDays,
+    })),
+  ]
 
   const syncNonio = async () => {
     setNonioState("syncing")
@@ -60,12 +86,17 @@ export default function CalendarPage() {
     setLocationState("checking")
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        setLocationState("detected")
-        setLocationText(`Localização detetada (${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}).`)
+        const distance = distanceInMeters(coords.latitude, coords.longitude)
+        const atIsec = distance <= ISEC_RADIUS_METERS
+        setLocationState(atIsec ? "detected" : "denied")
+        setLocationText(atIsec
+          ? `Estás no ISEC. Localização confirmada a ${Math.round(distance)} m do campus.`
+          : `Estás a cerca de ${Math.round(distance)} m do ISEC. O check-in só acontece dentro do campus.`)
+        if (!atIsec) return
+        const now = Date.now()
         const classEventToday = nonioEvents.some((event) => {
-          const eventDate = new Date(event.start)
-          const today = new Date()
-          return eventDate.toDateString() === today.toDateString() && /aula|class|lesson|teórica|prática/i.test(`${event.title} ${event.location}`)
+          const eventTime = new Date(event.start).getTime()
+          return isClassEvent(event) && eventTime <= now && now - eventTime <= 3 * 60 * 60 * 1000
         })
         if (classEventToday) setClassCheckIn(true)
       },
@@ -83,10 +114,10 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (locationState !== "detected") return
+    const now = Date.now()
     const classEventToday = nonioEvents.some((event) => {
-      const eventDate = new Date(event.start)
-      const today = new Date()
-      return eventDate.toDateString() === today.toDateString() && /aula|class|lesson|teórica|prática/i.test(`${event.title} ${event.location}`)
+      const eventTime = new Date(event.start).getTime()
+      return isClassEvent(event) && eventTime <= now && now - eventTime <= 3 * 60 * 60 * 1000
     })
     if (classEventToday) setClassCheckIn(true)
   }, [locationState, nonioEvents])
@@ -131,7 +162,7 @@ export default function CalendarPage() {
             <div><p className="text-sm font-medium">{format(week, "MMMM yyyy", { locale: pt })}</p><p className="mt-1 text-xs text-[#8da4a7]">Planeia sem pressão, acompanha com intenção.</p></div>
             <div className="flex gap-2"><button aria-label="Semana anterior" onClick={() => setWeek(addDays(week, -7))} className="rounded-xl border border-white/10 p-2 hover:bg-white/10"><ChevronLeft className="h-4 w-4" /></button><button aria-label="Próxima semana" onClick={() => setWeek(addDays(week, 7))} className="rounded-xl border border-white/10 p-2 hover:bg-white/10"><ChevronRight className="h-4 w-4" /></button></div>
           </div>
-          <div className="grid grid-cols-7 gap-2">{days.map((day) => { const active = isSameDay(day, selected); const hasEvent = events.some((event) => event.offset === dayOffset(day)); return <button key={day.toISOString()} onClick={() => setSelected(day)} className={`min-h-24 rounded-2xl border p-2 text-left transition sm:min-h-32 sm:p-4 ${active ? "border-[#8bd8c3] bg-[#8bd8c3]/10" : "border-white/10 bg-white/[.02] hover:bg-white/[.06]"}`}><p className="text-[10px] uppercase text-[#8da4a7]">{format(day, "EEE", { locale: pt })}</p><p className={`mt-2 text-xl font-semibold ${active ? "text-[#8bd8c3]" : "text-white"}`}>{format(day, "d")}</p>{hasEvent && <span className="mt-3 block h-1.5 w-1.5 rounded-full bg-[#f5a6c8]" />}</button> })}</div>
+          <div className="grid grid-cols-7 gap-2">{days.map((day) => { const active = isSameDay(day, selected); const hasEvent = events.some((event) => event.offset === dayOffset(day)) || importedCalendarEvents.some((event) => isSameDay(event.date, day)); return <button key={day.toISOString()} onClick={() => setSelected(day)} className={`min-h-24 rounded-2xl border p-2 text-left transition sm:min-h-32 sm:p-4 ${active ? "border-[#8bd8c3] bg-[#8bd8c3]/10" : "border-white/10 bg-white/[.02] hover:bg-white/[.06]"}`}><p className="text-[10px] uppercase text-[#8da4a7]">{format(day, "EEE", { locale: pt })}</p><p className={`mt-2 text-xl font-semibold ${active ? "text-[#8bd8c3]" : "text-white"}`}>{format(day, "d")}</p>{hasEvent && <span className="mt-3 block h-1.5 w-1.5 rounded-full bg-[#f5a6c8]" />}</button> })}</div>
         </section>
 
         <section className="mt-5 grid gap-5 md:grid-cols-[1fr_.6fr]">
