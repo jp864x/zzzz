@@ -164,7 +164,7 @@ export default function DashboardPage() {
                   </Button>
                   
                   <Button asChild className="w-full bg-white/20 hover:bg-white/30 border-none text-white backdrop-blur-sm justify-start">
-                    <Link href="/dashboard/social"> {/* Podes mudar a rota depois para /journal */}
+                    <Link href="/dashboard/journal">
                       <BookHeart className="mr-3 h-5 w-5" />
                       Meu Diário
                     </Link>

@@ -4,16 +4,16 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { addDays, format } from "date-fns"
 import { pt } from "date-fns/locale"
-import { Activity, ArrowUpRight, BookHeart, CalendarDays, Check, ChevronRight, Droplets, Dumbbell, Flame, HeartPulse, Leaf, Menu, Scale, Settings, Users, X } from "lucide-react"
+import { Activity, ArrowUpRight, BookHeart, CalendarDays, Check, ChevronRight, Droplets, Dumbbell, Flame, HeartPulse, Leaf, Menu, Scale, Settings, X } from "lucide-react"
 import type { HealthLog, Project, Task } from "@/types"
 import { DailyTasks } from "@/components/daily-tasks"
 import { StreakCounter } from "@/components/streak-counter"
 
 const links = [
-  ["Visão geral", "/dashboard", HeartPulse], ["Calendário", "/dashboard/calendar", CalendarDays], ["Peso e nutrição", "/dashboard/fitness/weight-loss", Scale], ["Treinos", "/dashboard/fitness", Dumbbell], ["Diário", "/dashboard/journal", BookHeart], ["Social hub", "/dashboard/social", Users], ["Relatórios", "/dashboard/reports", Activity],
+  ["Visão geral", "/dashboard", HeartPulse], ["Calendário", "/dashboard/calendar", CalendarDays], ["Peso e nutrição", "/dashboard/fitness/weight-loss", Scale], ["Treinos", "/dashboard/fitness", Dumbbell], ["Diário", "/dashboard/journal", BookHeart], ["Relatórios", "/dashboard/reports", Activity],
 ] as const
 const modules = [
-  ["Peso e nutrição", "Medidas, kcal e evolução", "/dashboard/fitness/weight-loss", Scale, "#71805b"], ["Rotina e água", "Hábitos, hidratação e foco", "/dashboard/habits", Droplets, "#6f8b78"], ["Meus treinos", "Movimento e recuperação", "/dashboard/fitness", Dumbbell, "#9a8664"], ["Meu diário", "Humor e autocuidado", "/dashboard/journal", BookHeart, "#b38f83"], ["Social hub", "Comunidade e conquistas", "/dashboard/social", Users, "#a67c52"],
+  ["Peso e nutrição", "Medidas, kcal e evolução", "/dashboard/fitness/weight-loss", Scale, "#71805b"], ["Rotina e água", "Hábitos, hidratação e foco", "/dashboard/habits", Droplets, "#6f8b78"], ["Meus treinos", "Movimento e recuperação", "/dashboard/fitness", Dumbbell, "#9a8664"], ["Meu diário", "Humor e autocuidado", "/dashboard/journal", BookHeart, "#b38f83"],
 ] as const
 
 export default function DashboardPage() {

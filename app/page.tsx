@@ -91,9 +91,9 @@ const featureShowcase = [
     screenshot: "/screenshots/fitness.png",
   },
   {
-    id: "social",
-    title: "Hub Social",
-    description: "Conecte-se com outros utilizadores e partilhe conquistas",
+id: "diary",
+  title: "Diário",
+  description: "Regista o teu estado e acompanha a tua evolução",
     icon: Users,
     color: "from-purple-500 to-pink-500",
     screenshot: "/screenshots/social.png",
