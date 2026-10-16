@@ -10,7 +10,7 @@ export function DashboardBackButton() {
     <button
       type="button"
       onClick={() => router.back()}
-      className="group inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/90 px-3.5 py-2 text-xs font-medium text-neutral-600 shadow-[0_8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl transition hover:-translate-x-0.5 hover:border-black/[0.14] hover:text-neutral-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3]/40"
+      className="group inline-flex items-center gap-2 rounded-full border border-[#caa85e]/40 bg-[#17130d]/90 px-4 py-2.5 text-xs font-semibold tracking-wide text-[#f1d58a] shadow-[0_12px_34px_rgba(75,52,14,0.2)] backdrop-blur-xl transition hover:-translate-x-0.5 hover:border-[#e6c875] hover:bg-[#221b0e] hover:text-[#fff3c4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#caa85e]/50"
       aria-label="Voltar para a página anterior"
     >
       <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />

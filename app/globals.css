@@ -120,6 +120,80 @@
   }
 }
 
+@layer components {
+  .premium-shell {
+    --premium-ink: #17130d;
+    --premium-gold: #caa85e;
+    --premium-gold-light: #f1d58a;
+    background: #f7f5f0;
+    color: var(--premium-ink);
+  }
+
+  .premium-shell main {
+    background: #f7f5f0 !important;
+  }
+
+  .premium-shell aside {
+    background: rgba(255, 253, 248, 0.92) !important;
+    border-color: rgba(202, 168, 94, 0.22) !important;
+    box-shadow: 12px 0 40px rgba(68, 48, 14, 0.04);
+  }
+
+  .premium-shell header {
+    background: rgba(255, 253, 248, 0.84) !important;
+    border-color: rgba(202, 168, 94, 0.18) !important;
+  }
+
+  .premium-shell aside a:first-child span:first-child,
+  .premium-shell main a[class*="bg-[#0071e3]"] {
+    background: linear-gradient(135deg, #b88a36, #e5c574) !important;
+    color: #241b0b !important;
+  }
+
+  .premium-shell aside nav a,
+  .premium-shell aside > a:last-child {
+    border-radius: 14px !important;
+    color: #756b5b !important;
+    transition: all 180ms ease;
+  }
+
+  .premium-shell aside nav a:hover,
+  .premium-shell aside > a:last-child:hover,
+  .premium-shell aside nav a.bg-neutral-100 {
+    background: #f1e8d1 !important;
+    color: #6c4b12 !important;
+  }
+
+  .premium-shell main section > div,
+  .premium-shell main section > a {
+    border: 1px solid rgba(202, 168, 94, 0.16);
+    box-shadow: 0 14px 36px rgba(77, 55, 20, 0.06) !important;
+  }
+
+  .premium-shell main h1,
+  .premium-shell main h2,
+  .premium-shell main h3 {
+    letter-spacing: -0.035em;
+    color: #211b12;
+  }
+
+  .premium-shell main h1 span,
+  .premium-shell main a[class*="text-[#0071e3]"],
+  .premium-shell main [class*="text-[#0071e3]"] {
+    color: #9b711e !important;
+  }
+
+  .premium-shell main button,
+  .premium-shell main a {
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  }
+
+  .premium-shell main button:hover,
+  .premium-shell main a:hover {
+    transform: translateY(-1px);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
