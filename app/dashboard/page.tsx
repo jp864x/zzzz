@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Activity, ArrowUpRight, BookHeart, Droplets, Flower2, Heart, LogOut, Scale, Settings, Sparkles, Utensils } from "lucide-react"
 import Link from "next/link"
@@ -20,6 +20,12 @@ const quickLinks = [
 ]
 
 export default function DashboardPage() {
+  const [gender, setGender] = useState<"female" | "male">("female")
+  useEffect(() => {
+    const savedGender = sessionStorage.getItem("wellness-gender")
+    if (savedGender === "male" || savedGender === "female") setGender(savedGender)
+  }, [])
+
   const today = new Date()
   const healthLogs: HealthLog[] = Array.from({ length: 30 }, (_, i) => ({ id: `log-${i}`, date: addDays(today, -i), uid: "user1", weight: 65 - i * 0.05, sleep: 7.5, exercises: [], meals: `Alimentação saudável dia ${i + 1}` }))
   const [tasks, setTasks] = useState<Task[]>(Array.from({ length: 30 }, (_, i) => ({ id: `task-${i}`, date: addDays(today, -i), completed: true, description: i % 2 === 0 ? "Beber 2L de água" : "30 min de caminhada", text: i % 2 === 0 ? "Beber 2L de água" : "30 min de caminhada", category: "Autocuidado", importance: 5, urgency: 5, type: "Saúde", order: i })))
@@ -30,7 +36,7 @@ export default function DashboardPage() {
   const handleDeleteTask = (id: string) => setTasks((current) => current.filter((task) => task.id !== id))
 
   return (
-    <main className="min-h-screen bg-[#0b1117] px-4 py-6 text-[#edf4f1] sm:px-8 lg:px-12">
+    <main className={`min-h-screen px-4 py-6 text-[#edf4f1] transition-colors duration-500 sm:px-8 lg:px-12 ${gender === "female" ? "bg-[#170f18]" : "bg-[#0b1117]"}`}>
       <div className="mx-auto max-w-7xl">
         <header className="mb-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -42,8 +48,8 @@ export default function DashboardPage() {
 
         <section className="mb-8 grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#15201f] p-7 sm:p-9">
-            <div className="absolute -right-12 -top-16 h-56 w-56 rounded-full bg-[#b9f3d0]/10 blur-3xl" />
-            <div className="relative z-10 max-w-xl"><div className="mb-5 flex items-center gap-2 text-[#b9f3d0]"><Heart className="h-4 w-4 fill-current" /><span className="text-xs font-semibold uppercase tracking-[0.22em]">Bom dia, Linda</span><Sparkles className="h-4 w-4" /></div><h2 className="max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Pequenos passos. <span className="text-[#b9f3d0]">Grandes mudanças.</span></h2><p className="mt-4 max-w-md text-sm leading-6 text-[#a9bbb5]">Cada escolha saudável que fazes hoje é um abraço no teu eu de amanhã. Tu consegues.</p></div>
+            <div className={`absolute -right-12 -top-16 h-56 w-56 rounded-full blur-3xl ${gender === "female" ? "bg-[#f5a6c8]/15" : "bg-[#b9f3d0]/10"}`} />
+            <div className="relative z-10 max-w-xl"><div className={`mb-5 flex items-center gap-2 ${gender === "female" ? "text-[#f5a6c8]" : "text-[#b9f3d0]"}`}><Heart className="h-4 w-4 fill-current" /><span className="text-xs font-semibold uppercase tracking-[0.22em]">{gender === "female" ? "Bom dia, Linda" : "Bom dia"}</span><Sparkles className="h-4 w-4" /></div><h2 className="max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">Pequenos passos. <span className={gender === "female" ? "text-[#f5a6c8]" : "text-[#b9f3d0]"}>Grandes mudanças.</span></h2><p className="mt-4 max-w-md text-sm leading-6 text-[#a9bbb5]">Cada escolha saudável que fazes hoje é um abraço no teu eu de amanhã. Tu consegues.</p></div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-[28px] border border-white/10 bg-[#111a20] p-6"><div className="mb-8 flex items-start justify-between"><div><p className="text-[10px] uppercase tracking-[0.22em] text-[#91a59f]">Dopamine streak</p><p className="mt-2 text-5xl font-semibold tracking-tight text-[#b9f3d0]">30</p></div><div className="rounded-full bg-[#b9f3d0]/10 p-3 text-[#b9f3d0]"><Sparkles className="h-5 w-5" /></div></div><p className="text-sm text-[#d7e1dd]">dias de consistência</p><div className="mt-5 flex gap-1">{Array.from({ length: 12 }, (_, i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < 10 ? "bg-[#b9f3d0]" : "bg-white/10"}`} />)}</div><p className="mt-3 text-xs text-[#91a59f]">Continua assim, estás a criar algo bonito.</p></motion.div>
         </section>

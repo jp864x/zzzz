@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("123456")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [showGenderStep, setShowGenderStep] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -30,11 +31,7 @@ export default function LoginPage() {
 
       // For demo purposes, accept any email/password
       if (email && password) {
-        toast({
-          title: "Login bem-sucedido!",
-          description: "A redirecionar para o seu painel.",
-        })
-        router.push("/dashboard")
+        setShowGenderStep(true)
       } else {
         throw new Error("Invalid credentials")
       }
@@ -139,6 +136,23 @@ export default function LoginPage() {
               </motion.div>
             </CardHeader>
 
+            {showGenderStep ? (
+              <CardContent className="space-y-6 py-10">
+                <div className="text-center">
+                  <div className="mb-3 text-4xl">Escolhe o teu espaço</div>
+                  <CardTitle className="text-2xl">Como queres personalizar a tua experiência?</CardTitle>
+                  <CardDescription className="mt-2">Usamos esta escolha apenas para adaptar o visual e a linguagem do teu painel.</CardDescription>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Button type="button" variant="outline" className="h-auto min-h-28 flex-col gap-2 border-pink-300/30 bg-pink-500/10 py-5 hover:bg-pink-500/20" onClick={() => { sessionStorage.setItem("wellness-gender", "female"); router.push("/dashboard") }}>
+                    <span className="text-3xl">♀</span><span className="font-semibold">Feminino</span><span className="text-xs text-muted-foreground">Visual suave e acolhedor</span>
+                  </Button>
+                  <Button type="button" variant="outline" className="h-auto min-h-28 flex-col gap-2 border-sky-300/30 bg-sky-500/10 py-5 hover:bg-sky-500/20" onClick={() => { sessionStorage.setItem("wellness-gender", "male"); router.push("/dashboard") }}>
+                    <span className="text-3xl">♂</span><span className="font-semibold">Masculino</span><span className="text-xs text-muted-foreground">Visual premium e confiante</span>
+                  </Button>
+                </div>
+              </CardContent>
+            ) : (
             <CardContent className="space-y-6">
               <motion.form
                 onSubmit={handleSubmit}
@@ -277,6 +291,7 @@ export default function LoginPage() {
                 </Link>
               </motion.p>
             </CardContent>
+            )} 
           </div>
         </Card>
       </motion.div>
