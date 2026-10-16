@@ -177,7 +177,15 @@
     color: #211b12;
   }
 
-  .premium-shell main h1 span,
+  .premium-shell main h1.hero-title {
+    color: #f9f8f4 !important;
+  }
+
+  .premium-shell main h1.hero-title span {
+    color: #d9c39a !important;
+  }
+
+  .premium-shell main h1:not(.hero-title) span,
   .premium-shell main a[class*="text-[#0071e3]"],
   .premium-shell main [class*="text-[#0071e3]"] {
     color: #9b711e !important;
