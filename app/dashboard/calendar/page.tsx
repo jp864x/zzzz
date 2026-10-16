@@ -19,12 +19,36 @@ export default function CalendarPage() {
   const [selected, setSelected] = useState(new Date())
   const [locationState, setLocationState] = useState<"idle" | "checking" | "detected" | "denied">("idle")
   const [locationText, setLocationText] = useState("")
+  const [nonioUrl, setNonioUrl] = useState(SCHOOL_CALENDAR_URL)
+  const [nonioState, setNonioState] = useState<"idle" | "syncing" | "synced" | "error">("idle")
+  const [nonioEvents, setNonioEvents] = useState<Array<{ title: string; location: string; start: string }>>([])
+  const [nonioMessage, setNonioMessage] = useState("")
   const [week, setWeek] = useState(new Date())
   const start = startOfWeek(week, { weekStartsOn: 1 })
   const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(start, index)), [start])
   const todayStart = new Date().setHours(0, 0, 0, 0)
   const dayOffset = (date: Date) => Math.round((date.getTime() - todayStart) / 86400000)
   const selectedEvents = events.filter((event) => event.offset === dayOffset(selected))
+
+  const syncNonio = async () => {
+    setNonioState("syncing")
+    setNonioMessage("")
+    try {
+      const response = await fetch(`/api/calendar/nonio?url=${encodeURIComponent(nonioUrl)}`)
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+      setNonioEvents(data.events)
+      setNonioState("synced")
+      setNonioMessage(`${data.events.length} eventos importados. Sincronização automática ativa.`)
+    } catch (error) {
+      setNonioState("error")
+      setNonioMessage(error instanceof Error ? error.message : "Não foi possível sincronizar o horário.")
+    }
+  }
+
+  useEffect(() => {
+    syncNonio()
+  }, [])
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -67,6 +91,21 @@ export default function CalendarPage() {
             <div><p className="text-xs uppercase tracking-[.2em] text-[#9dbab0]">Calendário escolar</p><p className="mt-2 text-sm font-medium">Sincronizar horário do Nónio</p><p className="mt-1 text-xs text-[#9dbab0]">Abre o teu calendário escolar oficial.</p></div><ExternalLink className="h-5 w-5 text-[#8bd8c3]" />
           </a>
           <div className="rounded-[24px] border border-white/10 bg-[#111b24] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[.2em] text-[#8da4a7]">Check-in por localização</p><p className="mt-2 text-sm font-medium">Estás num local marcado?</p><p className="mt-1 text-xs text-[#8da4a7]">A plataforma verifica automaticamente a tua localização ao abrir o calendário.</p></div><MapPin className="h-5 w-5 shrink-0 text-[#f5a6c8]" /></div><button onClick={detectLocation} disabled={locationState === "checking"} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8bd8c3] px-3 py-2 text-xs font-semibold text-[#081018] disabled:opacity-60">{locationState === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{locationState === "detected" ? "Local marcado como feito" : "Detetar localização"}</button>{locationText && <p className="mt-3 text-xs text-[#9dbab0]" role="status">{locationText}</p>}</div>
+        </section>
+
+        <section className="mb-5 rounded-[24px] border border-[#f5a6c8]/25 bg-[#211923] p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-xl">
+              <p className="text-xs uppercase tracking-[.2em] text-[#f5a6c8]">Horário escolar ligado</p>
+              <h2 className="mt-2 text-xl font-semibold">Sincronização automática do Nónio</h2>
+              <p className="mt-1 text-sm leading-6 text-[#d6c8d0]">O horário é consultado ao abrir esta página e atualizado periodicamente. Os eventos aparecem abaixo sem precisares de os copiar manualmente.</p>
+            </div>
+            <button onClick={syncNonio} disabled={nonioState === "syncing"} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#f5a6c8] px-4 py-2.5 text-sm font-semibold text-[#211923] disabled:opacity-60"><Loader2 className={`h-4 w-4 ${nonioState === "syncing" ? "animate-spin" : "hidden"}`} />{nonioState === "syncing" ? "A sincronizar..." : "Atualizar agora"}</button>
+          </div>
+          <label className="mt-5 block text-xs font-medium text-[#d6c8d0]" htmlFor="nonio-url">Endereço privado de exportação</label>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row"><input id="nonio-url" value={nonioUrl} onChange={(event) => setNonioUrl(event.target.value)} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-xs text-white outline-none ring-[#f5a6c8] focus:ring-2" /><button onClick={syncNonio} className="rounded-xl border border-[#f5a6c8]/40 px-4 py-2 text-xs font-semibold text-[#f5a6c8] hover:bg-[#f5a6c8]/10">Guardar e sincronizar</button></div>
+          {nonioMessage && <p className={`mt-3 text-xs ${nonioState === "error" ? "text-red-300" : "text-[#a9e3d0]"}`} role="status">{nonioMessage}</p>}
+          {nonioEvents.length > 0 && <div className="mt-5 grid gap-2 sm:grid-cols-2">{nonioEvents.slice(0, 6).map((event, index) => <div key={`${event.start}-${index}`} className="rounded-xl border border-white/10 bg-black/15 px-3 py-3"><p className="text-sm font-medium">{event.title}</p><p className="mt-1 text-xs text-[#b7a8b0]">{new Date(event.start).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })}{event.location ? ` · ${event.location}` : ""}</p></div>)}</div>}
         </section>
 
         <section className="rounded-[28px] border border-white/10 bg-[#111b24] p-5 sm:p-8">
