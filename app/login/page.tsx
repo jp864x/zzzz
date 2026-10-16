@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("joao@exemplo.com")
@@ -26,20 +27,24 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Simulate authentication - replace with your actual auth logic
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-      // For demo purposes, accept any email/password
-      if (email && password) {
-        setShowGenderStep(true)
-      } else {
-        throw new Error("Invalid credentials")
+      if (error) {
+        const description = error.message.toLowerCase().includes("confirm")
+          ? "Confirma o teu email antes de entrar."
+          : error.status === 429
+            ? "Demasiadas tentativas. Tenta novamente mais tarde."
+            : "Email ou palavra-passe inválidos."
+        throw new Error(description)
       }
-    } catch (error: any) {
+
+      setShowGenderStep(true)
+    } catch (error) {
       toast({
         variant: "destructive",
-        title: "Erro no login.",
-        description: "Por favor, verifique o seu email e palavra-passe.",
+        title: "Não foi possível entrar",
+        description: error instanceof Error ? error.message : "Ocorreu um erro inesperado.",
       })
     } finally {
       setIsLoading(false)
