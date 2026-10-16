@@ -4,23 +4,47 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { addDays, format, isSameDay, startOfWeek } from "date-fns"
 import { pt } from "date-fns/locale"
-import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, Droplets, Dumbbell, Plus, Scale } from "lucide-react"
+import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, Droplets, Dumbbell, ExternalLink, Loader2, MapPin, Plus, Scale } from "lucide-react"
 
 const events = [
   { offset: 0, title: "Check-in de bem-estar", type: "Rotina", icon: Scale },
   { offset: 1, title: "Treino de força", type: "Movimento", icon: Dumbbell },
   { offset: 2, title: "Beber 2L de água", type: "Hidratação", icon: Droplets },
-  { offset: 4, title: "Preparar receitas leves", type: "Nutrição", icon: CalendarDays },
+  { offset: 4, title: "Rever horário escolar", type: "Estudos", icon: CalendarDays },
 ]
+
+const SCHOOL_CALENDAR_URL = "https://inforestudante.ipc.pt/nonio/util/sincronizaHorarioNonio.do?chave=c56f307b13857690ba5febb6617cd06c&locale=PT"
 
 export default function CalendarPage() {
   const [selected, setSelected] = useState(new Date())
+  const [locationState, setLocationState] = useState<"idle" | "checking" | "detected" | "denied">("idle")
+  const [locationText, setLocationText] = useState("")
   const [week, setWeek] = useState(new Date())
   const start = startOfWeek(week, { weekStartsOn: 1 })
   const days = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(start, index)), [start])
   const todayStart = new Date().setHours(0, 0, 0, 0)
   const dayOffset = (date: Date) => Math.round((date.getTime() - todayStart) / 86400000)
   const selectedEvents = events.filter((event) => event.offset === dayOffset(selected))
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationState("denied")
+      setLocationText("A localização não está disponível neste dispositivo.")
+      return
+    }
+    setLocationState("checking")
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocationState("detected")
+        setLocationText(`Localização detetada (${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}).`)
+      },
+      () => {
+        setLocationState("denied")
+        setLocationText("Não foi possível aceder à localização. Podes permitir o acesso no navegador.")
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 },
+    )
+  }
 
   return (
     <main className="min-h-screen bg-[#081018] px-4 py-6 text-[#edf4f1] sm:px-8 lg:px-12 lg:py-10">
@@ -33,6 +57,13 @@ export default function CalendarPage() {
           </div>
           <div className="hidden rounded-2xl border border-white/10 bg-[#111b24] p-4 sm:block"><CalendarDays className="h-6 w-6 text-[#8bd8c3]" /></div>
         </header>
+
+        <section className="mb-5 grid gap-4 md:grid-cols-2">
+          <a href={SCHOOL_CALENDAR_URL} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-[24px] border border-[#8bd8c3]/25 bg-[#14231f] p-5 transition hover:border-[#8bd8c3]/60">
+            <div><p className="text-xs uppercase tracking-[.2em] text-[#9dbab0]">Calendário escolar</p><p className="mt-2 text-sm font-medium">Sincronizar horário do Nónio</p><p className="mt-1 text-xs text-[#9dbab0]">Abre o teu calendário escolar oficial.</p></div><ExternalLink className="h-5 w-5 text-[#8bd8c3]" />
+          </a>
+          <div className="rounded-[24px] border border-white/10 bg-[#111b24] p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-xs uppercase tracking-[.2em] text-[#8da4a7]">Check-in por localização</p><p className="mt-2 text-sm font-medium">Estás num local marcado?</p><p className="mt-1 text-xs text-[#8da4a7]">Deteta a tua posição e assinala o momento como feito.</p></div><MapPin className="h-5 w-5 shrink-0 text-[#f5a6c8]" /></div><button onClick={detectLocation} disabled={locationState === "checking"} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#8bd8c3] px-3 py-2 text-xs font-semibold text-[#081018] disabled:opacity-60">{locationState === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{locationState === "detected" ? "Local marcado como feito" : "Detetar localização"}</button>{locationText && <p className="mt-3 text-xs text-[#9dbab0]" role="status">{locationText}</p>}</div>
+        </section>
 
         <section className="rounded-[28px] border border-white/10 bg-[#111b24] p-5 sm:p-8">
           <div className="mb-7 flex items-center justify-between">

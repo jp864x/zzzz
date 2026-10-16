@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Activity, ArrowUpRight, BookHeart, CalendarDays, Check, Droplets, Dumbbell, Flame, HeartPulse, Home, LogOut, Menu, Scale, Settings, Sparkles, Users, Utensils, X } from "lucide-react"
+import { Activity, ArrowUpRight, BookHeart, CalendarDays, Check, Droplets, Dumbbell, Flame, HeartPulse, Home, LogOut, Menu, Scale, Settings, Sparkles, Users, X } from "lucide-react"
 import { addDays, format } from "date-fns"
 import { pt } from "date-fns/locale"
 import { StreakCounter } from "@/components/streak-counter"
@@ -15,7 +15,6 @@ const nav = [
   { label: "Calendário", href: "/dashboard/calendar", icon: CalendarDays },
   { label: "Peso e nutrição", href: "/dashboard/fitness/weight-loss", icon: Scale },
   { label: "Treinos", href: "/dashboard/fitness", icon: Dumbbell },
-  { label: "Receitas", href: "/dashboard/recipes", icon: Utensils },
   { label: "Diário", href: "/dashboard/journal", icon: BookHeart },
   { label: "Social hub", href: "/dashboard/social", icon: Users },
   { label: "Relatórios", href: "/dashboard/reports", icon: Activity },
@@ -25,7 +24,6 @@ const cards = [
   { title: "Peso e nutrição", detail: "Acompanha medidas, kcal e evolução", href: "/dashboard/fitness/weight-loss", icon: Scale, color: "coral" },
   { title: "Rotina e água", detail: "Hábitos, hidratação e consistência", href: "/dashboard/habits", icon: Droplets, color: "mint" },
   { title: "Meus treinos", detail: "Planos, movimento e recuperação", href: "/dashboard/fitness", icon: Dumbbell, color: "violet" },
-  { title: "Receitas leves", detail: "Refeições com calorias e macros", href: "/dashboard/recipes", icon: Utensils, color: "amber" },
   { title: "Meu diário", detail: "Humor, pensamentos e autocuidado", href: "/dashboard/journal", icon: BookHeart, color: "sky" },
   { title: "Social hub", detail: "Comunidade, desafios e conquistas", href: "/dashboard/social", icon: Users, color: "pink" },
 ]
